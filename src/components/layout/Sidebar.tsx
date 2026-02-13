@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router';
-import { Database, TableProperties, GitMerge, Layers } from 'lucide-react';
+import { Database, TableProperties, GitMerge, Layers, Box } from 'lucide-react';
 
 const navItems = [
   { to: '/table-explorer', icon: TableProperties, label: 'Table Explorer' },
   { to: '/join-visualizer', icon: GitMerge, label: 'Join Visualizer' },
   { to: '/normalization', icon: Layers, label: 'Normalization Lab' },
+  { to: '/3d-view', icon: Box, label: '3D Landscape' },
 ];
 
 export default function Sidebar() {

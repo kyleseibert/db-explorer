@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import TableExplorerPage from './pages/TableExplorerPage';
 import JoinVisualizerPage from './pages/JoinVisualizerPage';
 import NormalizationLabPage from './pages/NormalizationLabPage';
+import ThreeDViewPage from './pages/ThreeDViewPage';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="table-explorer" element={<TableExplorerPage />} />
           <Route path="join-visualizer" element={<JoinVisualizerPage />} />
           <Route path="normalization" element={<NormalizationLabPage />} />
+          <Route path="3d-view" element={<ThreeDViewPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

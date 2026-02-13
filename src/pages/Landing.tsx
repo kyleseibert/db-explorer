@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { TableProperties, GitMerge, Layers, BookOpen } from 'lucide-react';
+import { TableProperties, GitMerge, Layers, BookOpen, Box } from 'lucide-react';
 
 const labs = [
   {
@@ -32,6 +32,16 @@ const labs = [
       'Start with a messy spreadsheet and clean it up step by step, learning why good database design prevents data problems.',
     concepts: ['Data anomalies (update, delete, insert)', 'First, Second, and Third Normal Form', 'Splitting tables to reduce redundancy', 'Functional dependencies'],
   },
+  {
+    to: '/3d-view',
+    icon: Box,
+    iconBg: 'bg-accent-500/20',
+    iconColor: 'text-accent-400',
+    title: '3D Table Landscape',
+    description:
+      'Explore database tables as floating 3D panels in an interactive scene with glowing foreign key connections.',
+    concepts: ['Tables as 3D objects in space', 'Foreign key connections as glowing lines', 'Interactive row highlighting across tables', 'Spatial understanding of database structure'],
+  },
 ];
 
 export default function Landing() {
@@ -63,7 +73,7 @@ export default function Landing() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {labs.map(({ to, icon: Icon, iconBg, iconColor, title, description, concepts }) => (
           <Link
             key={to}
