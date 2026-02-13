@@ -71,7 +71,7 @@ export default function TablePanel({
       </mesh>
 
       {/* Glowing border */}
-      <mesh>
+      <mesh position={[0, 0, -0.001]}>
         <planeGeometry args={[panelWidth + 0.06, panelHeight + 0.06]} />
         <meshBasicMaterial
           color={isSelected ? accentColor : '#475569'}
@@ -81,35 +81,41 @@ export default function TablePanel({
         />
       </mesh>
 
-      {/* Table name (3D text) */}
+      {/* Table name (3D text via troika — always crisp) */}
       <Text
         position={[0, panelHeight / 2 + 0.25, 0.01]}
         fontSize={0.22}
         color={accentColor}
         anchorX="center"
         anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
-        fontWeight={700}
       >
         {table.name}
       </Text>
 
-      {/* HTML table content projected into 3D */}
+      {/*
+        HTML table content — screen-space overlay anchored to 3D position.
+        By NOT using `transform`, the Html is rendered at full browser resolution
+        (no pixelation) and follows the 3D point like a tooltip/label.
+        `center` places the anchor in the middle of the element.
+      */}
       <Html
-        transform
-        distanceFactor={4}
         position={[0, 0, 0.02]}
-        style={{
-          width: `${panelWidth * 62}px`,
-          pointerEvents: 'auto',
-        }}
+        center
+        style={{ pointerEvents: 'auto', userSelect: 'none' }}
       >
         <div
           style={{
-            background: 'transparent',
-            borderRadius: '6px',
+            width: '220px',
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(8px)',
+            borderRadius: '8px',
+            border: `1px solid ${isSelected ? accentColor + '60' : 'rgba(71,85,105,0.5)'}`,
             overflow: 'hidden',
-            fontFamily: 'Inter, system-ui, sans-serif',
+            fontFamily:
+              'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            boxShadow: isSelected
+              ? `0 0 20px ${accentColor}20`
+              : '0 4px 20px rgba(0,0,0,0.3)',
           }}
         >
           {/* Column headers */}
@@ -117,8 +123,9 @@ export default function TablePanel({
             style={{
               display: 'flex',
               gap: '2px',
-              padding: '4px 6px',
-              borderBottom: '1px solid rgba(71, 85, 105, 0.5)',
+              padding: '5px 8px',
+              borderBottom: '1px solid rgba(71, 85, 105, 0.4)',
+              background: 'rgba(30, 41, 59, 0.5)',
             }}
           >
             {table.columns.map((col) => (
@@ -126,7 +133,7 @@ export default function TablePanel({
                 key={col.id}
                 style={{
                   flex: 1,
-                  fontSize: '9px',
+                  fontSize: '10px',
                   fontWeight: 600,
                   color: col.isPrimaryKey
                     ? '#fbbf24'
@@ -135,7 +142,7 @@ export default function TablePanel({
                       : '#94a3b8',
                   textTransform: 'uppercase',
                   letterSpacing: '0.03em',
-                  padding: '2px 3px',
+                  padding: '1px 2px',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -160,22 +167,22 @@ export default function TablePanel({
                 style={{
                   display: 'flex',
                   gap: '2px',
-                  padding: '3px 6px',
+                  padding: '3px 8px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  transition: 'background 0.15s ease',
                   background: isHighlighted
-                    ? `${accentColor}25`
+                    ? `${accentColor}20`
                     : 'transparent',
                   boxShadow: isHighlighted
-                    ? `inset 0 0 0 1px ${accentColor}80, 0 0 8px ${accentColor}30`
+                    ? `inset 0 0 0 1px ${accentColor}60`
                     : 'none',
                   borderRadius: '3px',
-                  margin: '1px 2px',
+                  margin: '1px 3px',
                 }}
                 onMouseEnter={(e) => {
                   if (!isHighlighted) {
                     (e.currentTarget as HTMLElement).style.background =
-                      'rgba(71, 85, 105, 0.3)';
+                      'rgba(71, 85, 105, 0.25)';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -190,12 +197,13 @@ export default function TablePanel({
                     key={col.id}
                     style={{
                       flex: 1,
-                      fontSize: '9px',
+                      fontSize: '10px',
                       color: isHighlighted ? '#e2e8f0' : '#cbd5e1',
-                      padding: '1px 3px',
+                      padding: '1px 2px',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      lineHeight: '1.4',
                     }}
                   >
                     {String(row.cells[col.name] ?? 'NULL')}

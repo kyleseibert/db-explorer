@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { QuadraticBezierLine } from '@react-three/drei';
+import { Line } from '@react-three/drei';
 import * as THREE from 'three';
 
 import type { ForeignKeyRelationship } from '../../types';
@@ -18,38 +18,25 @@ const REL_COLORS: Record<string, string> = {
   'rel-album-song': '#a78bfa', // purple
 };
 
-interface AnimatedLineProps {
-  start: THREE.Vector3;
-  mid: THREE.Vector3;
-  end: THREE.Vector3;
-  color: string;
-  isActive: boolean;
-}
-
-function AnimatedLine({ start, mid, end, color, isActive }: AnimatedLineProps) {
-  const lineRef = useRef<{ dashOffset: number }>(null);
-
-  useFrame(() => {
-    if (lineRef.current) {
-      lineRef.current.dashOffset -= isActive ? 0.03 : 0.008;
-    }
-  });
-
-  return (
-    <QuadraticBezierLine
-      ref={lineRef as React.RefObject<never>}
-      start={start}
-      mid={mid}
-      end={end}
-      color={color}
-      lineWidth={isActive ? 3 : 1.5}
-      dashed
-      dashSize={isActive ? 0.3 : 0.2}
-      gapSize={0.15}
-      opacity={isActive ? 0.9 : 0.4}
-      transparent
-    />
-  );
+/** Generate points along a quadratic bezier curve */
+function bezierPoints(
+  start: THREE.Vector3,
+  mid: THREE.Vector3,
+  end: THREE.Vector3,
+  segments = 40
+): THREE.Vector3[] {
+  const points: THREE.Vector3[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const x =
+      (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * mid.x + t * t * end.x;
+    const y =
+      (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * mid.y + t * t * end.y;
+    const z =
+      (1 - t) * (1 - t) * start.z + 2 * (1 - t) * t * mid.z + t * t * end.z;
+    points.push(new THREE.Vector3(x, y, z));
+  }
+  return points;
 }
 
 interface TravelingParticleProps {
@@ -68,7 +55,6 @@ function TravelingParticle({ start, mid, end, color }: TravelingParticleProps) {
     progressRef.current = (progressRef.current + delta * 0.4) % 1;
     const t = progressRef.current;
 
-    // Quadratic bezier interpolation
     const x =
       (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * mid.x + t * t * end.x;
     const y =
@@ -111,14 +97,14 @@ export default function ConnectionLines({
       );
 
       const color = REL_COLORS[rel.id] ?? '#60a5fa';
+      const points = bezierPoints(start, mid, end);
 
-      return { rel, start, mid, end, color };
+      return { rel, start, mid, end, color, points };
     });
   }, [relationships, tablePositions]);
 
   if (!visible) return null;
 
-  // Determine if any highlighted relationship is active
   const hasHighlights = highlightedRows.size > 0;
 
   return (
@@ -126,7 +112,6 @@ export default function ConnectionLines({
       {lines.map((line) => {
         if (!line) return null;
 
-        // A line is "active" if both its source and target tables have highlighted rows
         const isActive =
           hasHighlights &&
           (highlightedRows.has(line.rel.sourceTableId) ||
@@ -134,12 +119,15 @@ export default function ConnectionLines({
 
         return (
           <group key={line.rel.id}>
-            <AnimatedLine
-              start={line.start}
-              mid={line.mid}
-              end={line.end}
+            <Line
+              points={line.points}
               color={line.color}
-              isActive={isActive}
+              lineWidth={isActive ? 3 : 1.5}
+              transparent
+              opacity={isActive ? 0.9 : 0.4}
+              dashed={!isActive}
+              dashSize={0.2}
+              gapSize={0.15}
             />
             {isActive && (
               <TravelingParticle

@@ -61,17 +61,16 @@ function CameraController({
   const { camera } = useThree();
   const targetPos = useRef(new THREE.Vector3(0, 4, 10));
   const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
-  const controlsRef = useRef<never>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const controlsRef = useRef<any>(null);
 
   useEffect(() => {
     if (focusedTableId && TABLE_CONFIGS[focusedTableId]) {
       const config = TABLE_CONFIGS[focusedTableId];
       const [x, y, z] = config.position;
-      // Position camera in front of and above the focused table
       targetPos.current.set(x, y + 2.5, z + 5);
       targetLookAt.current.set(x, y, z);
     } else {
-      // Default overview position
       targetPos.current.set(0, 4, 10);
       targetLookAt.current.set(0, 0, 0);
     }
@@ -80,14 +79,9 @@ function CameraController({
   useFrame(() => {
     camera.position.lerp(targetPos.current, 0.03);
 
-    // Update orbit controls target
     if (controlsRef.current) {
-      const controls = controlsRef.current as unknown as {
-        target: THREE.Vector3;
-        update: () => void;
-      };
-      controls.target.lerp(targetLookAt.current, 0.03);
-      controls.update();
+      controlsRef.current.target.lerp(targetLookAt.current, 0.03);
+      controlsRef.current.update();
     }
   });
 
@@ -128,13 +122,13 @@ export default function TableScene({
 
   return (
     <>
-      {/* Scene background color set via Canvas gl prop */}
+      {/* Scene background */}
       <color attach="background" args={['#0f172a']} />
 
       {/* Lighting */}
-      <ambientLight intensity={0.5} />
-      <pointLight position={[5, 8, 5]} intensity={0.8} color="#e2e8f0" />
-      <pointLight position={[-5, 6, -3]} intensity={0.4} color="#60a5fa" />
+      <ambientLight intensity={0.6} />
+      <pointLight position={[5, 8, 5]} intensity={1} color="#e2e8f0" />
+      <pointLight position={[-5, 6, -3]} intensity={0.5} color="#60a5fa" />
 
       {/* Camera controls */}
       <CameraController
