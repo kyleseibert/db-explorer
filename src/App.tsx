@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { HashRouter, Routes, Route } from 'react-router';
 import AppShell from './components/layout/AppShell';
 import Landing from './pages/Landing';
 import TableExplorerPage from './pages/TableExplorerPage';
@@ -8,7 +8,7 @@ import ThreeDViewPage from './pages/ThreeDViewPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<Landing />} />
@@ -18,6 +18,6 @@ export default function App() {
           <Route path="3d-view" element={<ThreeDViewPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
